@@ -1,0 +1,393 @@
+{
+ "cells": [
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import pandas as pd"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import numpy as np"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df = pd.read_csv(\"C:/Users/User/Downloads/Loan_Prediction/test.csv\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df.head(1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df.describe()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%matplotlib inline"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df['Property_Area'].value_counts()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df.boxplot(column='ApplicantIncome')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df.tail(10)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df.describe()"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df['CoapplicantIncome'].hist(bins=50)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df.boxplot(column='ApplicantIncome', by = 'Gender' )"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [],
+   "source": [
+    "df.boxplot(column='CoapplicantIncome' , by = 'Married')"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "df.head(5)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [],
+   "source": [
+    "df.loc[(df[\"Gender\"]==\"Female\") & (df[\"Education\"]==\"Not Graduate\") & (df[\"Self_Employed\"]==\"No\"), [\"Gender\",\"Education\",\"Self_Employed\",\"Loan_ID\"]]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data = pd.read_csv(\"C:/Users/User/Downloads/Loan_Prediction/train.csv\", index_col = \"Loan_ID\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [],
+   "source": [
+    "#Create a new function\n",
+    "def num_missing(x):\n",
+    "    return sum(x.isnull())\n",
+    "#Applying per column:\n",
+    "print (\"Missing values per column are:\")\n",
+    "print (data.apply(num_missing, axis = 0))\n",
+    "#Applying per row:\n",
+    "print (\"Missing values per row are:\")\n",
+    "print (data.apply(num_missing, axis =1))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Imputing missing values:\n",
+    "\n",
+    "#First we import a function to determine the mode\n",
+    "from scipy.stats import mode\n",
+    "mode(data['Gender'])"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "mode(data['Gender']).mode[0]"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {
+    "scrolled": true
+   },
+   "outputs": [],
+   "source": [
+    "#Now we can fill the nissing values using apply function\n",
+    "#Impute the missing values:\n",
+    "data['Gender'].fillna(mode(data['Gender']).mode[0], inplace=True)\n",
+    "data['Married'].fillna(mode(data['Married']).mode[0], inplace=True)\n",
+    "data['Self_Employed'].fillna(mode(data['Self_Employed']).mode[0], inplace=True)\n",
+    "\n",
+    "#Now check the missing values again to confirm:\n",
+    "\n",
+    "print(data.apply(num_missing, axis=0))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Determine Pivot Table\n",
+    "impute_grps=data.pivot_table(values=['LoanAmount'], index = [\"Gender\",\"Married\",\"Self_Employed\"], aggfunc=np.mean)\n",
+    "print (impute_grps)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Multi Indexing\n",
+    "#iterate only through rows with missing amount\n",
+    "\n",
+    "for i, row in data.loc[data['LoanAmount'].isnull(),:].iterrows():\n",
+    "    ind = tuple([row['Gender'],row['Married'],row['Self_Employed']])\n",
+    "    data.loc[i,'LoanAmount'] = impute_grps.loc[ind].values[0]\n",
+    "    \n",
+    "#Now check the missing values again to confirm\n",
+    "\n",
+    "print (data.apply(num_missing, axis=0))"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Crosstab\n",
+    "\n",
+    "pd.crosstab(data[\"Credit_History\"],data[\"Loan_Status\"],margins=True)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "def percConvert(ser):\n",
+    "    return ser/float(ser[-1])\n",
+    "pd.crosstab(data[\"Credit_History\"], data[\"Loan_Status\"],margins=True).apply(percConvert, axis=1)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Merger Data Frames\n",
+    "\n",
+    "#Merging data becomes important when we have information coming from different sources to be collated.\n",
+    "\n",
+    "#creating new data frame\n",
+    "\n",
+    "prop_rates=pd.DataFrame([1000,5000,12000], index = ['Rural','Semiurban','Urban'], columns=['rates'])\n",
+    "prop_rates"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Merging the information now with the original data frame\n",
+    "data_merged = data.merge(right=prop_rates, how='inner', left_on='Property_Area',right_index=True, sort=False)\n",
+    "data_merged.pivot_table(values='Credit_History', index=['Property_Area','rates'],aggfunc=len)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "#Plotting (Boxplot and Histogram)\n",
+    "import matplotlib.pyplot as plt"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "%matplotlib inline\n",
+    "data.boxplot(column=\"ApplicantIncome\",by=\"Loan_Status\")"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "data.hist(column=\"ApplicantIncome\",by=\"Loan_Status\",bins=30)"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp1 = data['Credit_History'].value_counts(ascending=True);\n",
+    "print ('Frequency Table for Credit History:');\n",
+    "print (temp1); \n",
+    "temp2 = data.pivot_table(values=['Loan_Status'],index=['Credit_History'],aggfunc=lambda x:x.map({'Y':1,'N':0}).mean());\n",
+    "print (temp2);\n",
+    "\n",
+    "print ('\\nProbility of getting loan for each Credit History class:');"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "import matplotlib.pyplot as plt"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "fig = plt.figure(figsize=(8,4));\n",
+    "ax1 = fig.add_subplot(121);\n",
+    "ax1.set_xlabel('Credit_History');\n",
+    "ax1.set_ylabel('Count of Applicants');\n",
+    "ax1.set_title(\"Applicants by Credit_History\");\n",
+    "temp1.plot(kind='bar');\n",
+    "ax2 = fig.add_subplot(122);\n",
+    "ax2.set_xlabel('Credit_History');\n",
+    "ax2.set_ylabel('Probability of getting loan');\n",
+    "ax2.set_title(\"Probability of getting loan by credit history\");\n",
+    "temp2.plot(kind ='bar');"
+   ]
+  },
+  {
+   "cell_type": "code",
+   "execution_count": null,
+   "metadata": {},
+   "outputs": [],
+   "source": [
+    "temp3 = pd.crosstab(df['Credit_History'], data['Loan_Status']);\n",
+    "temp3.plot(kind='bar', stacked=True, color=['red','blue'], grid=False);"
+   ]
+  }
+ ],
+ "metadata": {
+  "kernelspec": {
+   "display_name": "Python 3",
+   "language": "python",
+   "name": "python3"
+  },
+  "language_info": {
+   "codemirror_mode": {
+    "name": "ipython",
+    "version": 3
+   },
+   "file_extension": ".py",
+   "mimetype": "text/x-python",
+   "name": "python",
+   "nbconvert_exporter": "python",
+   "pygments_lexer": "ipython3",
+   "version": "3.7.3"
+  }
+ },
+ "nbformat": 4,
+ "nbformat_minor": 2
+}
